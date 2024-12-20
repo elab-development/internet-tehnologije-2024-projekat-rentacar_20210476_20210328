@@ -10,8 +10,7 @@ class Car extends Model
     use HasFactory;
 
     protected $fillable = [
-        'brand',
-        'model',
+        'car_name',
         'fuel_type',
         'price_per_day',
         'description',
@@ -19,13 +18,10 @@ class Car extends Model
         'gear_type',
         'VIN',
         'registration',
-        'properties',
         'production_year',
     ];
 
-    protected $casts = [
-        'properties' => 'array', // Cast JSON properties to an array
-    ];
+    public $timestamps = false;
 
     public function rents()
     {

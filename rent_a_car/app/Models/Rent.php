@@ -17,6 +17,8 @@ class Rent extends Model
         'total_price',
     ];
 
+    public $timestamps = false;
+
     public function car()
     {
         return $this->belongsTo(Car::class);
