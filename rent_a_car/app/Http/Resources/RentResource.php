@@ -23,8 +23,7 @@ class RentResource extends JsonResource
             ],
             'car' => [
                 'id' => $this->car->id,
-                'brand' => $this->car->brand,
-                'model' => $this->car->model,
+                'car_name' => $this->car->car_name,
                 'fuel_type' => $this->car->fuel_type,
                 'price_per_day' => $this->car->price_per_day,
             ],
