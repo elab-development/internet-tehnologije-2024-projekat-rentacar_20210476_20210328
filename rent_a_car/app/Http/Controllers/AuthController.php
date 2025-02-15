@@ -17,27 +17,46 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
+        // Validacija regularnih polja
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255',
-            'password' => 'required|string|min:8',
-            'personal_id' => 'required|file|mimes:jpg,jpeg,png,pdf', 
-            'drivers_licence' => 'required|file|mimes:jpg,jpeg,png,pdf', 
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'password' => 'required|string',
         ]);
     
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response()->json(['error' => $validator->errors()], 422);
         }
     
-        $personalIdName = Str::random(32) . "." . $request->personal_id->getClientOriginalExtension();
-        $driversLicenceName = Str::random(32) . "." . $request->drivers_licence->getClientOriginalExtension();
+        // Provera da li su fajlovi prisutni
+        if (!$request->hasFile('personal_id') || !$request->hasFile('drivers_licence')) {
+            return response()->json(['error' => 'Fajlovi nisu pravilno poslati.'], 422);
+        }
     
+        // Validacija fajlova
+        $validator = Validator::make($request->all(), [
+            'personal_id' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'drivers_licence' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
+        }
+    
+        // Snimanje fajlova
         $emailPart = explode('@', $request->email)[0];
         $userFolder = "user_documents/{$emailPart}";
     
-        Storage::disk('public')->put("{$userFolder}/{$personalIdName}", file_get_contents($request->file('personal_id')));
-        Storage::disk('public')->put("{$userFolder}/{$driversLicenceName}", file_get_contents($request->file('drivers_licence')));
+        $personalId = $request->file('personal_id'); 
+        $driversLicence = $request->file('drivers_licence'); 
     
+        $personalIdName = Str::random(32) . "." . $personalId->getClientOriginalExtension();
+        $driversLicenceName = Str::random(32) . "." . $driversLicence->getClientOriginalExtension();
+    
+        $personalId->storeAs("public/{$userFolder}", $personalIdName);
+        $driversLicence->storeAs("public/{$userFolder}", $driversLicenceName);
+    
+        // Kreiranje korisnika
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -50,11 +69,12 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
     
         return response()->json([
-            'message' => 'Registracija novog korisnika uspesna.',
+            'message' => 'Registracija novog korisnika uspešna.',
             'user' => new UserResource($user),
             'token' => $token,
         ], 201);
     }
+    
     
     public function login(Request $request)
     {
