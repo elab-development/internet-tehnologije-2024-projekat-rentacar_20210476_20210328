@@ -5,6 +5,7 @@ import Register from "./components/Register";
 import Home from "./components/Home";
 import Dashboard from "./components/Dashboard";
 import Navigation from "./components/Navigation";
+import Users from "./components/Users";
 import "./App.css";
 
 
@@ -75,6 +76,18 @@ function App() {
             )
           }
         />
+        <Route
+          path="/users"
+          element={
+            userData.token && userData.role === "admin" ? (
+              <Users userData={userData} />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
+
+
 
       </Routes>
     </Router>
