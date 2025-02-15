@@ -24,6 +24,26 @@ class RentController extends Controller
         return response()->json(['rents' => RentResource::collection($rents)], 200);
     }
 
+    public function myrents()
+{
+    if (!Auth::check()) {
+        return response()->json(['error' => 'Neautorizovan pristup'], 401);
+    }
+    $userId = Auth::id();
+
+ 
+    $rents = Rent::where('user_id', $userId)
+        ->with(['user', 'car']) 
+        ->get();
+
+    if ($rents->isEmpty()) {
+        return response()->json(['message' => 'Nema rentanja za ovog korisnika'], 404);
+    }
+
+    return response()->json(['rents' => RentResource::collection($rents)], 200);
+}
+
+
     /**
      * Brisanje odabrane rente.
      * Dostupno samo adminima.
