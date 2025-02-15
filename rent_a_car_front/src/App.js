@@ -6,6 +6,7 @@ import Home from "./components/Home";
 import Dashboard from "./components/Dashboard";
 import Navigation from "./components/Navigation";
 import Users from "./components/Users";
+import AllRents from "./components/AllRents";
 import "./App.css";
 
 
@@ -81,6 +82,16 @@ function App() {
           element={
             userData.token && userData.role === "admin" ? (
               <Users userData={userData} />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
+         <Route
+          path="/rents"
+          element={
+            userData.token && userData.role === "admin" ? (
+              <AllRents userData={userData} />
             ) : (
               <Navigate to="/" />
             )

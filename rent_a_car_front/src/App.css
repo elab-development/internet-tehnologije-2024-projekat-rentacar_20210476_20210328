@@ -376,7 +376,7 @@ a:hover {
   background-color: #2C5D63;
 }
 
-.users-container {
+.users-container, .all-rents-container {
   display: flex;
 flex-direction: column;
 align-items: center;

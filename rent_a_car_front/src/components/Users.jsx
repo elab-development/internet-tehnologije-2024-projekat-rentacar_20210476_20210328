@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Table from "./Table";
+import { Link } from "react-router-dom";
 
 const UsersDashboard = ({ userData }) => {
   const [users, setUsers] = useState([]);
@@ -41,6 +42,9 @@ const UsersDashboard = ({ userData }) => {
     <div className="users-container">
       <h1>Svi Korisnici</h1>
       <h3> Ovde se moze videti spisak svih korisnika koji koriste ovu aplikaciju </h3>
+      <div>
+        <Link to="/dashboard">Administrativni Panel</Link> &gt; <span>Svi korisnici</span>
+      </div>
       {error && <p className="error-message">{error}</p>}
       <Table
         columns={["name", "email", "role"]}
