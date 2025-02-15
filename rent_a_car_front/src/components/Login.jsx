@@ -22,7 +22,7 @@ const Login = ({ setUserData }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-
+  
     try {
       const response = await fetch("http://127.0.0.1:8000/api/login", {
         method: "POST",
@@ -32,31 +32,39 @@ const Login = ({ setUserData }) => {
         },
         body: JSON.stringify(formData),
       });
-
+  
       const data = await response.json();
-
+  
       if (!response.ok) {
         throw new Error(data.error || "Neuspešna prijava.");
       }
-
+  
       // Ekstrakcija podataka iz odgovora
-      const { id, role } = data.user;
+      const { id, role, name } = data.user;
       const { token } = data;
-
+  
       // Čuvamo podatke u sessionStorage
       sessionStorage.setItem("userId", id);
       sessionStorage.setItem("userRole", role);
+      sessionStorage.setItem("userName", name);
       sessionStorage.setItem("userToken", token);
-
+  
       // Prosleđujemo podatke u App.js
-      setUserData({ id, role, token });
-
+      setUserData({ id, role, name, token });
+  
       alert("Uspešno ste prijavljeni!");
-      navigate("/home");
+  
+      // Preusmeravanje na odgovarajuću stranicu
+      if (role === "admin") {
+        navigate("/dashboard");
+      } else {
+        navigate("/home");
+      }
     } catch (error) {
       setError(error.message);
     }
   };
+  
 
   return (
     <div className="login-page">

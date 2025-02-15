@@ -185,6 +185,53 @@ a:hover {
   width: 40%; 
 }
 
+/* Generalna stilizacija navigacije */
+.navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #283739;
+  padding: 10px 20px;
+  top: 0;
+  z-index: 1000;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  width: 80px;
+  height: auto;
+  margin-right: 10px;
+}
+
+.nav-links {
+  display: flex;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-links li {
+  margin-right: 20px;
+}
+
+.nav-links li a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 20px;
+}
+
+.nav-links li a:hover {
+  color: var(--accent); 
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+}
 
 
 
