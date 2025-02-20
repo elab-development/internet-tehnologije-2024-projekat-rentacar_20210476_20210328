@@ -88,7 +88,7 @@ const AllRents = ({ userData }) => {
     return <p>Loading rents...</p>;
   }
 
-  // Ukupan broj strama
+  // Ukupan broj strana
   const totalPages = Math.ceil(rents.length / rentsPerPage);
 
   return (

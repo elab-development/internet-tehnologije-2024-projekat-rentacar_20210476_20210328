@@ -16,6 +16,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/users/{id}', [UserController::class, 'show']); 
 
     Route::get('/rents', [RentController::class, 'index']); 
+    //dodata ruta za rente korisnika
     Route::get('/myrents', [RentController::class, 'myrents']); 
     Route::delete('/rents/{id}', [RentController::class, 'destroy']); 
     Route::post('/rents', [RentController::class, 'store']); 

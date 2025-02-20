@@ -8,6 +8,7 @@ import Navigation from "./components/Navigation";
 import Users from "./components/Users";
 import AllRents from "./components/AllRents";
 import "./App.css";
+import MyRents from "./components/MyRents";
 
 
 function App() {
@@ -59,6 +60,16 @@ function App() {
           element={
             userData.token && userData.role === "regular" ? (
               <Home userData={userData} />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
+         <Route
+          path="/myrents"
+          element={
+            userData.token && userData.role === "regular" ? (
+              <MyRents userData={userData} />
             ) : (
               <Navigate to="/" />
             )
