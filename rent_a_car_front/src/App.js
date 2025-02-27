@@ -9,6 +9,7 @@ import Users from "./components/Users";
 import AllRents from "./components/AllRents";
 import "./App.css";
 import MyRents from "./components/MyRents";
+import Cars from "./components/Cars";
 
 
 function App() {
@@ -74,6 +75,16 @@ function App() {
               <Navigate to="/" />
             )
           }
+        />
+        <Route
+        path="/cars"
+        element={
+          userData.token && userData.role === "regular" ? (
+            <Cars  />
+          ) : (
+            <Navigate to="/" />
+          )
+        }
         />
 
 
