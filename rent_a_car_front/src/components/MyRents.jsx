@@ -3,6 +3,7 @@ import Table from "./Table";
 import Button from "./Button";
 import { useNavigate } from "react-router-dom";
 import Modal from "./Modal";  
+import { Link } from "react-router-dom";
 
 const MyRents = ({ userData }) => {
   const [rents, setRents] = useState([]);
@@ -103,6 +104,9 @@ const MyRents = ({ userData }) => {
     <div className="my-rents-container">
       <h1>Moje Rente</h1>
       <h3>Ovde su prikazana sva moja rentiranja, sa datumima, cenama i mogućnostima ažuriranja</h3>
+      <div>
+        <Link to="/home">Pocetna</Link> &gt; <span>Moje rente</span>
+      </div>
 
       <Table
         columns={["name", "car_name", "rent_start_date", "rent_end_date", "total_price", "action"]}

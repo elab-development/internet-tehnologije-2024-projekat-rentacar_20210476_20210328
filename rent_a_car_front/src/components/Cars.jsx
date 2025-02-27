@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Button from "./Button";
 import Footer from "./Footer";
 import CurrencyConverter from "./CurrencyConverter"; 
+import { Link } from "react-router-dom";
 
 const Cars = () => {
   const [cars, setCars] = useState([]);
@@ -55,6 +56,9 @@ const Cars = () => {
       <div className="cars-container">
         <h1>Svi Automobili</h1>
         <p>Ovde su prikazani svi automobili koji su dostupni za rentanje.</p>
+        <div>
+        <Link to="/home">Pocetna</Link> &gt; <span>Automobili</span>
+      </div>
         
         {error && <p>{error}</p>}
         
