@@ -13,8 +13,6 @@ const MyRents = ({ userData }) => {
   const [newRentDate, setNewRentDate] = useState("");
   const [newRentEndDate, setNewRentEndDate] = useState("");
 
-  const navigate = useNavigate();
-
   useEffect(() => {
     if (!userData.token || userData.role === "admin") {
       setError("Neautorizovan pristup.");
