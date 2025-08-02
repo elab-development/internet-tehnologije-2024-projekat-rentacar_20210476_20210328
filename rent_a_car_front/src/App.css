@@ -841,3 +841,19 @@ select {
   padding: 0;
   font: inherit;
 }
+
+/* ...existing styles... */
+
+/* GIF below charts */
+.gif-container {
+  text-align: center;
+  margin: 2rem 0;
+}
+.gif-container img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+}
+.gif-error {
+  color: var(--accent);
+}

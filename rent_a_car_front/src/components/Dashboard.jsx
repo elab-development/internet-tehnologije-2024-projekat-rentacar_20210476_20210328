@@ -16,6 +16,8 @@ import {
   Legend,
 } from "recharts";
 
+import useGif from "../hooks/useGif";
+
 const API_BASE = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000/api";
 
 const Dashboard = ({ userData }) => {
@@ -27,6 +29,8 @@ const Dashboard = ({ userData }) => {
   const [stats, setStats] = useState(null);
   const [loadingStats, setLoadingStats] = useState(true);
   const [statsError, setStatsError] = useState(null);
+
+  const { gifUrl, loading: gifLoading, error: gifError } = useGif();
 
   useEffect(() => {
     const token = userData.token || sessionStorage.getItem("userToken");
@@ -80,7 +84,7 @@ const Dashboard = ({ userData }) => {
       ) : statsError ? (
         <p className="stats-error">{statsError}</p>
       ) : (
-        <section className="charts-container" >
+        <section className="charts-container">
           <div className="chart-card">
             <h3>Mesečni trend rentiranja</h3>
             <ResponsiveContainer width="90%" height={300}>
@@ -88,7 +92,7 @@ const Dashboard = ({ userData }) => {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis />
-                <Tooltip labelStyle={{color: "#4caf50"}}/>
+                <Tooltip labelStyle={{ color: "#4caf50" }} />
                 <Legend verticalAlign="top" />
                 <Line
                   type="monotone"
@@ -105,7 +109,7 @@ const Dashboard = ({ userData }) => {
           <div className="chart-card">
             <h3>Rentiranja po automobilu</h3>
             <ResponsiveContainer width="90%" height={300}>
-              <BarChart  data={stats.rents_per_car}>
+              <BarChart data={stats.rents_per_car}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   dataKey="car_name"
@@ -115,7 +119,7 @@ const Dashboard = ({ userData }) => {
                   height={60}
                 />
                 <YAxis />
-                <Tooltip labelStyle={{color: "#ff9800"}}/>
+                <Tooltip labelStyle={{ color: "#ff9800" }} />
                 <Legend verticalAlign="top" />
                 <Bar
                   dataKey="count"
@@ -128,6 +132,16 @@ const Dashboard = ({ userData }) => {
           </div>
         </section>
       )}
+
+      <section className="gif-container">
+        {gifLoading ? (
+          <p>Učitavanje GIF-a...</p>
+        ) : gifError ? (
+          <p className="gif-error">{gifError}</p>
+        ) : (
+          <img src={gifUrl} alt="Random car gif" />
+        )}
+      </section>
 
       <Footer />
     </div>
