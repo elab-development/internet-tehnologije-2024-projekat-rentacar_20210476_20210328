@@ -22,6 +22,7 @@ const Navigation = ({ userData, handleLogout }) => {
             <li><Link to="/home">Home</Link></li>
             <li><Link to="/myrents">Moja Rentiranja</Link></li>
             <li><Link to="/cars">Auta za Rentiranje</Link></li>
+             <li><Link to="/reviews">Pregled ocena</Link></li>
           </>
         ) : null}
       </ul>

@@ -78,7 +78,7 @@ class ReviewController extends Controller
             return response()->json(['error' => 'Recenzija nije pronađena.'], 404);
         }
 
-        if (Auth::user()->role !== 'admin') {
+        if (Auth::user()->role !== 'admin' && $review->rent->user_id !== Auth::id()) {
             return response()->json(['error' => 'Nemate ovlašćenje za brisanje ove recenzije.'], 403);
         }
 

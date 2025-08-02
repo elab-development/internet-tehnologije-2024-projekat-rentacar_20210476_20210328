@@ -10,7 +10,7 @@ import AllRents from "./components/AllRents";
 import "./App.css";
 import MyRents from "./components/MyRents";
 import Cars from "./components/Cars";
-
+import MyReviews from "./components/MyReviews";
 
 function App() {
   const [userData, setUserData] = useState({
@@ -120,7 +120,16 @@ function App() {
           }
         />
 
-
+         <Route
+          path="/reviews"
+          element={
+            userData.token && userData.role === "regular" ? (
+              < MyReviews/>
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
 
       </Routes>
     </Router>

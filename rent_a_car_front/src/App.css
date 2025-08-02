@@ -560,10 +560,107 @@ select {
   gap: 0.75rem;
 }
 
+.my-reviews-container {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+.my-reviews-container h1 {
+  color: var(--primary-dark);
+  margin-bottom: 1rem;
+}
 
+.reviews-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background: var(--primary-dark);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
 
+.reviews-table th,
+.reviews-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--primary-light);
+}
 
+.reviews-table th {
+  background: var(--accent);
+  color: var(--primary-dark);
+  font-weight: 600;
+}
 
+.reviews-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.reviews-table td button {
+  margin-right: 0.5rem;
+}
 
+.my-reviews-container .error {
+  color: var(--accent);
+  font-weight: 600;
+  margin-top: 1rem;
+}
 
+/* Modal form fields */
+.form-group {
+  margin-bottom: 1rem;
+}
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: var(--primary-dark);
+}
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--primary-light);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  resize: vertical;
+}
+.field-error {
+  color: var(--accent);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
 
+/* Star‐rating input */
+.star-rating-input {
+  display: inline-block;
+}
+.star {
+  font-size: 1.5rem;
+  color: #ccc;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s;
+}
+.star:hover,
+.star.selected {
+  color: #f1c40f;
+}
+
+/* Read‐only stars in table */
+.star.display {
+  font-size: 1.25rem;
+  color: #ccc;
+  cursor: default;
+}
+.star.display.selected {
+  color: #f1c40f;
+}
+
+/* Modal buttons */
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
