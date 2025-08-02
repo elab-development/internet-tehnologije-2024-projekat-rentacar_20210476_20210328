@@ -106,4 +106,40 @@ class AuthController extends Controller
         $request->user()->tokens()->delete();
         return response()->json(['message' => "Korisnik $user->email je uspešno odjavljen."], 200);
     }
+
+       /**
+     * Reset a user's password by email.
+     * Accepts: email, password, password_confirmation
+     */
+    public function resetPassword(Request $request)
+    {
+        // 1) Validate
+        $validator = Validator::make($request->all(), [
+            'email'                 => 'required|email|exists:users,email',
+            'password'              => 'required|string|min:8|confirmed',
+            'password_confirmation' => 'required|string|min:8',
+        ], [
+            'email.required'           => 'Email je obavezan.',
+            'email.email'              => 'Email nije validan.',
+            'email.exists'             => 'Korisnik sa ovim mejlom ne postoji.',
+            'password.required'        => 'Lozinka je obavezna.',
+            'password.min'             => 'Lozinka mora imati najmanje 8 karaktera.',
+            'password.confirmed'       => 'Lozinka i potvrda lozinke se ne poklapaju.',
+            'password_confirmation.required' => 'Potvrda lozinke je obavezna.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        // 2) Find user and update
+        $user = User::where('email', $request->email)->first();
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        // 3) Return success
+        return response()->json([
+            'message' => 'Lozinka je uspešno resetovana.'
+        ], 200);
+    }
 }
