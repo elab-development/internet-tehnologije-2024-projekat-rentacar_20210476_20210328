@@ -1,12 +1,16 @@
+// src/components/MyRents.jsx
+
 import React, { useState, useEffect } from "react";
 import Table from "./Table";
 import Button from "./Button";
-import { useNavigate } from "react-router-dom";
-import Modal from "./Modal";  
+import Modal from "./Modal";
 import { Link } from "react-router-dom";
 
-const MyRents = ({ userData }) => {
+const API_BASE = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000/api";
+
+const MyRents = () => {
   const [rents, setRents] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedRent, setSelectedRent] = useState(null);
@@ -14,88 +18,102 @@ const MyRents = ({ userData }) => {
   const [newRentEndDate, setNewRentEndDate] = useState("");
 
   useEffect(() => {
-    if (!userData.token || userData.role === "admin") {
+    const token = sessionStorage.getItem("userToken");
+    const role = sessionStorage.getItem("userRole");
+
+    if (!token || role === "admin") {
       setError("Neautorizovan pristup.");
+      setIsLoading(false);
       return;
     }
 
     const fetchRents = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/myrents", {
-          method: "GET",
+        const res = await fetch(`${API_BASE}/myrents`, {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
-            Authorization: `Bearer ${userData.token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 
-        const data = await response.json();
-        if (response.ok && data.rents) {
+        // Ako ruta ne postoji, tretiraj kao prazan niz
+        if (res.status === 404) {
+          setRents([]);
+          return;
+        }
+
+        const data = await res.json();
+        if (res.ok && data.rents) {
           setRents(data.rents);
         } else {
           setError(data.error || "Greška pri učitavanju renti.");
         }
-      } catch (error) {
+      } catch {
         setError("Došlo je do greške.");
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchRents();
-  }, [userData.token, userData.role]);
+  }, []);
 
   const handleUpdateRentDate = async () => {
+    const token = sessionStorage.getItem("userToken");
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/rents/${selectedRent.id}`, {
-        method: "PATCH", 
+      const res = await fetch(`${API_BASE}/rents/${selectedRent.id}`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${userData.token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           rent_start_date: newRentDate,
           rent_end_date: newRentEndDate,
         }),
       });
-  
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || "Došlo je do greške pri ažuriranju rente.");
-      }
-  
-      setRents((prevRents) =>
-      prevRents.map((rent) =>
-        rent.id === selectedRent.id
-          ? { ...rent, rent_start_date: newRentDate, rent_end_date: newRentEndDate } 
-          : rent
-      )
-    );
-      alert("Renta uspešno ažurirana.");
-      setShowModal(false); 
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
 
-    } catch (error) {
-        alert("Datum početka rente mora biti danas ili kasnije, a datum zavrsetka nakon datuma pocetka.");
+      setRents((prev) =>
+        prev.map((r) =>
+          r.id === selectedRent.id
+            ? { ...r, rent_start_date: newRentDate, rent_end_date: newRentEndDate }
+            : r
+        )
+      );
+      alert("Renta uspešno ažurirana.");
+      setShowModal(false);
+    } catch {
+      alert(
+        "Datum početka rente mora biti danas ili kasnije, a datum završetka nakon datuma početka."
+      );
     }
   };
 
-  const handleOpenModal = (rent) => {
+  const openModal = (rent) => {
     setSelectedRent(rent);
     setNewRentDate(rent.rent_start_date);
     setNewRentEndDate(rent.rent_end_date);
     setShowModal(true);
   };
+  const closeModal = () => setShowModal(false);
 
-  const handleCloseModal = () => {
-    setShowModal(false);
-  };
+  if (error) return <p className="error-message">{error}</p>;
+  if (isLoading) return <p className="loading-message">Učitavanje rentiranja...</p>;
 
-  if (error) {
-    return <p>{error}</p>;
-  }
-
-  if (!rents || rents.length === 0) {
-    return <p>Loading rents...</p>;
+  if (!rents.length) {
+    return (
+      <div className="no-rents">
+        <div className="message-card">
+          <p>Trenutno nemate dostupnih rentiranja...</p>
+          <Link to="/cars" className="offer-link">
+            Pogledajte ponudu!
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -103,11 +121,18 @@ const MyRents = ({ userData }) => {
       <h1>Moje Rente</h1>
       <h3>Ovde su prikazana sva moja rentiranja, sa datumima, cenama i mogućnostima ažuriranja</h3>
       <div>
-        <Link to="/home">Pocetna</Link> &gt; <span>Moje rente</span>
+        <Link to="/home">Početna</Link> &gt; <span>Moje rente</span>
       </div>
 
       <Table
-        columns={["name", "car_name", "rent_start_date", "rent_end_date", "total_price", "action"]}
+        columns={[
+          "name",
+          "car_name",
+          "rent_start_date",
+          "rent_end_date",
+          "total_price",
+          "action",
+        ]}
         data={rents.map((rent) => ({
           ...rent,
           name: rent.user.name,
@@ -115,33 +140,29 @@ const MyRents = ({ userData }) => {
           rent_start_date: rent.rent_start_date,
           rent_end_date: rent.rent_end_date,
           total_price: rent.total_price,
-          action: (
-            <>
-              <Button text="Ažuriraj datum" onClick={() => handleOpenModal(rent)} />
-            </>
-          ),
+          action: <Button text="Ažuriraj datum" onClick={() => openModal(rent)} />,
         }))}
       />
 
-{showModal && (
-        <Modal onClose={handleCloseModal}>
+      {showModal && (
+        <Modal onClose={closeModal}>
           <h3>Ažuriraj datum rente</h3>
-          <label for="newRentDate">Novi datum početka rente:</label>
+          <label htmlFor="newRentDate">Novi datum početka rente:</label>
           <input
-            type="date"
             id="newRentDate"
+            type="date"
             value={newRentDate}
             onChange={(e) => setNewRentDate(e.target.value)}
           />
-          <label for="newRentEndDate">Novi datum završetka rente:</label>
+          <label htmlFor="newRentEndDate">Novi datum završetka rente:</label>
           <input
-            type="date"
             id="newRentEndDate"
+            type="date"
             value={newRentEndDate}
             onChange={(e) => setNewRentEndDate(e.target.value)}
           />
-          <Button text="Sacuvaj promene" onClick={handleUpdateRentDate} />
-          <Button text="Zatvori" onClick={handleCloseModal} />
+          <Button text="Sačuvaj promene" onClick={handleUpdateRentDate} />
+          <Button text="Zatvori" onClick={closeModal} />
         </Modal>
       )}
     </div>
