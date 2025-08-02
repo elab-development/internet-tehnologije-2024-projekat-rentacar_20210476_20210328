@@ -715,3 +715,35 @@ select {
   background: rgba(0,0,0,0.2);
   border-radius: 3px;
 }
+
+/* Stats loading / error */
+.stats-loading,
+.stats-error {
+  text-align: center;
+  margin: 2rem 0;
+  color: var(--accent);
+}
+
+/* Charts container stacked vertically */
+.charts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+.chart-card {
+  background: var(--primary-dark);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+.chart-card h3 {
+  margin-bottom: 1rem;
+  color: var(--accent);
+}
+
+/* Recharts axis tick labels */
+.recharts-cartesian-axis-tick-value {
+  font-size: 0.85rem;
+  fill: var(--primary-light);
+}
