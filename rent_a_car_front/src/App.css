@@ -664,3 +664,54 @@ select {
   gap: 0.75rem;
   margin-top: 1.5rem;
 }
+
+/* Reviews-modal */
+
+.reviews-modal h2 {
+  margin-bottom: 1rem;
+  color: var(--primary-dark);
+}
+
+.reviews-list {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* each review entry */
+.review-item {
+  border-bottom: 1px solid var(--primary-light);
+  padding: 0.75rem 0;
+}
+.review-item:last-child {
+  border-bottom: none;
+}
+
+.reviewer strong {
+  color: var(--primary-dark);
+}
+
+/* stars in list */
+.rating-display .star.display {
+  font-size: 1.25rem;
+  color: #ccc;
+  margin-right: 0.25rem;
+}
+.rating-display .star.display.selected {
+  color: #f1c40f;
+}
+
+.review-text {
+  margin-top: 0.5rem;
+  color: var(--primary-dark);
+}
+
+/* ensure scrollbar styling is unobtrusive */
+.reviews-list::-webkit-scrollbar {
+  width: 6px;
+}
+.reviews-list::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.2);
+  border-radius: 3px;
+}
