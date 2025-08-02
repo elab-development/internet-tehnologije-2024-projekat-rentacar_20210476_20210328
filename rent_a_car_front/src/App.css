@@ -484,6 +484,82 @@ select {
   transition: background-color 0.3s ease;
 }
 
+/* MyRents.css */
+
+.no-rents {
+  /* Celi viewport ispod headera */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 80px); /* prilagodite visini headera */
+  background: var(--primary-medium);
+  padding: 2rem;
+}
+
+.no-rents .message-card {
+  background: var(--primary-white);
+  border-radius: 1rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  padding: 3rem 2rem;
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+}
+
+.no-rents .message-card p {
+  font-size: 1.5rem;
+  color: var(--primary-dark);
+  margin-bottom: 2rem;
+  line-height: 1.4;
+}
+
+.no-rents .offer-link {
+  display: inline-block;
+  background: var(--accent);
+  color: var(--primary-dark);
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  transition: background 0.2s ease-in-out, transform 0.2s;
+}
+
+.no-rents .offer-link:hover {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+}
+
+/* Modal rentiranja */
+
+.modal-form {
+  margin-top: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--primary-dark);
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--primary-light);
+  border-radius: 0.5rem;
+}
+
+.modal-buttons {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
 
 
 

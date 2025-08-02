@@ -1,44 +1,88 @@
 import React, { useState, useEffect } from 'react';
 
+// Modul-level keš i promise za jedan jedini fetch
+let cachedExchangeRate = null;
+let fetchPromise = null;
+
+// Funkcija koja pokušava da dođe do kursa (primary → fallback)
+async function fetchRate(apiKey) {
+  const primaryUrl = `https://api.exchangeratesapi.io/v1/latest?access_key=${apiKey}&symbols=RSD`;
+  try {
+    const res = await fetch(primaryUrl);
+    if (res.status === 429) {
+      console.warn('Primary API rate limit, prebacujem se na fallback');
+      const fb = await fetch('https://api.exchangerate.host/latest?base=EUR&symbols=RSD');
+      const fbData = await fb.json();
+      return fbData?.rates?.RSD ?? 1;
+    }
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    return data.success && typeof data.rates.RSD === 'number'
+      ? data.rates.RSD
+      : 1;
+  } catch (err) {
+    console.error('Greška pri fetch-u primary API-ja:', err);
+    // fallback
+    try {
+      const fb = await fetch('https://api.exchangerate.host/latest?base=EUR&symbols=RSD');
+      const fbData = await fb.json();
+      return fbData?.rates?.RSD ?? 1;
+    } catch {
+      return 1;
+    }
+  }
+}
+
+// Vraća promise koji kešira rezultat
+function getExchangeRateAsync() {
+  if (cachedExchangeRate != null) {
+    return Promise.resolve(cachedExchangeRate);
+  }
+  if (!fetchPromise) {
+    const apiKey = process.env.REACT_APP_API_KEY;
+    if (!apiKey) {
+      console.error('REACT_APP_API_KEY nije postavljen u .env');
+      cachedExchangeRate = 1;
+      fetchPromise = Promise.resolve(1);
+    } else {
+      fetchPromise = fetchRate(apiKey).then(rate => {
+        cachedExchangeRate = rate;
+        return rate;
+      });
+    }
+  }
+  return fetchPromise;
+}
+
 const CurrencyConverter = ({ priceInEUR }) => {
-  const [exchangeRate, setExchangeRate] = useState(null);
+  const [exchangeRate, setExchangeRate] = useState(1);
   const [currency, setCurrency] = useState('EUR');
   const [convertedPrice, setConvertedPrice] = useState(priceInEUR);
 
   useEffect(() => {
-    const fetchExchangeRate = async () => {
-      try {
-        const apiKey = process.env.REACT_APP_API_KEY;  
-        const response = await fetch(`https://api.exchangeratesapi.io/latest?base=EUR&access_key=${apiKey}`);
-        const data = await response.json();
-        setExchangeRate(data.rates.RSD);  
-      } catch (error) {
-        console.error('Error fetching exchange rate:', error);
-      }
-    };
-    
-    fetchExchangeRate();
+    // Jednom po mountu, povuci (ili iz keša) kurs
+    getExchangeRateAsync().then(rate => {
+      setExchangeRate(rate);
+    });
   }, []);
 
   useEffect(() => {
-    if (currency === 'EUR') {
-      setConvertedPrice(priceInEUR);  
-    } else if (currency === 'RSD' && exchangeRate) {
-      // If currency is RSD, convert to RSD
-      setConvertedPrice(Number(priceInEUR) * exchangeRate);  
-    }
+    setConvertedPrice(
+      currency === 'EUR' ? priceInEUR : Number(priceInEUR) * exchangeRate
+    );
   }, [currency, exchangeRate, priceInEUR]);
 
-  const formatPrice = (price) => {
-    const validPrice = Number(price); 
-    if (isNaN(validPrice)) return '-';  
-    return validPrice.toFixed(2);  
+  const formatPrice = val => {
+    const n = Number(val);
+    return isNaN(n) ? '-' : n.toFixed(2);
   };
 
   return (
     <div>
-      <span>{currency === 'EUR' ? formatPrice(priceInEUR) : formatPrice(convertedPrice)} {currency}</span>
-      <select onChange={(e) => setCurrency(e.target.value)} value={currency}>
+      <span>
+        {formatPrice(currency === 'EUR' ? priceInEUR : convertedPrice)} {currency}
+      </span>
+      <select value={currency} onChange={e => setCurrency(e.target.value)}>
         <option value="EUR">EUR</option>
         <option value="RSD">RSD</option>
       </select>

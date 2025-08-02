@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Rent;
+use App\Models\Car;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 use App\Http\Resources\RentResource;
 
 class RentController extends Controller
@@ -35,10 +37,6 @@ class RentController extends Controller
     $rents = Rent::where('user_id', $userId)
         ->with(['user', 'car']) 
         ->get();
-
-    if ($rents->isEmpty()) {
-        return response()->json(['message' => 'Nema rentanja za ovog korisnika'], 404);
-    }
 
     return response()->json(['rents' => RentResource::collection($rents)], 200);
 }
@@ -71,38 +69,51 @@ class RentController extends Controller
      */
     public function store(Request $request)
     {
+        // 1) Zabranimo adminima
         if (Auth::user()->role === 'admin') {
-            return response()->json(['error' => 'Nemate ovlašćenje: Ova funkcija je dostupna samo regularnim korisnicima!'], 403);
+            return response()->json([
+                'error' => 'Nemate ovlašćenje: samo regularni korisnici!'
+            ], 403);
         }
 
+        // 2) Validiramo samo ono što front šalje
         $validated = $request->validate([
-            'car_id' => 'required|exists:cars,id',
+            'car_id'          => 'required|exists:cars,id',
             'rent_start_date' => 'required|date|after_or_equal:today',
-            'rent_end_date' => 'required|date|after:rent_start_date',
-            'total_price' => 'required|numeric|min:0',
+            'rent_end_date'   => 'required|date|after:rent_start_date',
         ], [
-            'car_id.required' => 'Polje za ID vozila je obavezno.',
-            'car_id.exists' => 'Izabrano vozilo ne postoji.',
-            'rent_start_date.required' => 'Datum početka rente je obavezan.',
-            'rent_start_date.after_or_equal' => 'Datum početka rente mora biti danas ili kasnije.',
-            'rent_end_date.required' => 'Datum završetka rente je obavezan.',
-            'rent_end_date.after' => 'Datum završetka rente mora biti nakon datuma početka.',
-            'total_price.required' => 'Cena je obavezna.',
-            'total_price.numeric' => 'Cena mora biti broj.',
-            'total_price.min' => 'Cena mora biti najmanje 0.',
+            'car_id.required'               => 'Polje za ID vozila je obavezno.',
+            'car_id.exists'                 => 'Izabrano vozilo ne postoji.',
+            'rent_start_date.required'      => 'Datum početka rente je obavezan.',
+            'rent_start_date.after_or_equal'=> 'Datum početka mora biti danas ili kasnije.',
+            'rent_end_date.required'        => 'Datum završetka je obavezan.',
+            'rent_end_date.after'           => 'Datum završetka mora biti nakon početka.',
         ]);
 
+        // 3) Učitaj vozilo da dobijemo cenu po danu
+        $car   = Car::findOrFail($validated['car_id']);
+        $start = Carbon::parse($validated['rent_start_date']);
+        $end   = Carbon::parse($validated['rent_end_date']);
+
+        // +1 da ubrojimo i prvi dan
+        $days       = $start->diffInDays($end) + 1;
+        $totalPrice = $days * $car->price_per_day;
+
+        // 4) Kreiraj rentu
         $rent = Rent::create([
-            'user_id' => Auth::id(),
-            'car_id' => $validated['car_id'],
+            'user_id'         => Auth::id(),
+            'car_id'          => $validated['car_id'],
             'rent_start_date' => $validated['rent_start_date'],
-            'rent_end_date' => $validated['rent_end_date'],
-            'total_price' => $validated['total_price'],
+            'rent_end_date'   => $validated['rent_end_date'],
+            'total_price'     => $totalPrice,
         ]);
 
-        return response()->json(['message' => 'Renta je uspešno kreirana.', 'rent' => new RentResource($rent)], 201);
+        // 5) Vrati JSON sa 201
+        return response()->json([
+            'message' => 'Renta je uspešno kreirana.',
+            'rent'    => new RentResource($rent),
+        ], 201);
     }
-
     /**
      * Ažuriranje datuma trajanja rente.
      * Dostupno samo regularnim korisnicima.
