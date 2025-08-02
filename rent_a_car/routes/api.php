@@ -25,6 +25,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/reviews', [ReviewController::class, 'store']); 
     Route::put('/reviews/{id}', [ReviewController::class, 'update']); 
     Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']); 
+
+    // Statistika (samo admin)
+    Route::get('/rents/stats', [RentController::class, 'stats']);
 });
 
 Route::resource('cars', CarController::class)->only(['index', 'show']);

@@ -7,6 +7,7 @@ use App\Models\Car;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB; 
 use App\Http\Resources\RentResource;
 
 class RentController extends Controller
@@ -150,5 +151,70 @@ class RentController extends Controller
         ]);
 
         return response()->json(['message' => 'Renta je uspešno ažurirana.', 'rent' => new RentResource($rent)], 200);
+    }
+
+        /**
+     * Statistika o rentiranjima.
+     * Dostupno samo administratorima.
+     */
+    public function stats()
+    {
+        // 1) Provera uloge
+        if (Auth::user()->role !== 'admin') {
+            return response()->json([
+                'error' => 'Nemate ovlašćenje: samo administratori!'
+            ], 403);
+        }
+
+        // 2) Osnovni agregati
+        $totalRents      = Rent::count();
+        $totalRevenue    = Rent::sum('total_price');
+        // prosečan broj dana: DATEDIFF + 1
+        $averageDuration = Rent::select(DB::raw('AVG(DATEDIFF(rent_end_date, rent_start_date)+1) as avg_days'))
+            ->first()
+            ->avg_days;
+
+        // 3) Broj rentanja po automobilu
+        $rentsPerCar = Rent::select('car_id', DB::raw('COUNT(*) as count'))
+            ->groupBy('car_id')
+            ->with('car:id,car_name')
+            ->get()
+            ->map(function($row) {
+                return [
+                    'car_id'   => $row->car_id,
+                    'car_name' => $row->car->car_name,
+                    'count'    => $row->count,
+                ];
+            });
+
+        // 4) Mesečni trend rentanja (poslednjih 12 meseci)
+        $months = collect();
+        for ($i = 11; $i >= 0; $i--) {
+            $m = Carbon::now()->subMonths($i);
+            $months->push($m->format('Y-m'));
+        }
+        $monthlyCounts = Rent::select(
+                DB::raw("DATE_FORMAT(rent_start_date, '%Y-%m') as month"),
+                DB::raw('COUNT(*) as count')
+            )
+            ->where('rent_start_date', '>=', Carbon::now()->subYear()->startOfMonth())
+            ->groupBy('month')
+            ->pluck('count','month');
+        // napuni sve mesece, i one bez rentanja na 0
+        $monthlyTrend = $months->map(function($month) use($monthlyCounts){
+            return [
+                'month' => $month,
+                'count' => $monthlyCounts->get($month, 0),
+            ];
+        });
+
+        // 5) Vratimo JSON
+        return response()->json([
+            'total_rents'      => $totalRents,
+            'total_revenue'    => round($totalRevenue, 2),
+            'average_duration' => round($averageDuration, 2),
+            'rents_per_car'    => $rentsPerCar,
+            'monthly_trend'    => $monthlyTrend,
+        ], 200);
     }
 }
