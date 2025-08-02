@@ -28,6 +28,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Statistika (samo admin)
     Route::get('/rents/stats', [RentController::class, 'stats']);
+
+    Route::put('/users/{id}', [UserController::class, 'update']);
 });
 
 Route::resource('cars', CarController::class)->only(['index', 'show']);
