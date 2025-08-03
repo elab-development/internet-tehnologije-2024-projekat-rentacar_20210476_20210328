@@ -70,27 +70,27 @@ const Register = () => {
 
       <form onSubmit={handleSubmit} className="register-form" encType="multipart/form-data">
         <div className="form-group">
-          <label>Ime</label>
+          <label style={{ color: "white" }}>Ime</label>
           <input type="text" name="name" value={formData.name} onChange={handleChange} required />
         </div>
 
         <div className="form-group">
-          <label>Email</label>
+          <label style={{ color: "white" }}>Email</label>
           <input type="email" name="email" value={formData.email} onChange={handleChange} required />
         </div>
 
         <div className="form-group">
-          <label>Lozinka</label>
+          <label style={{ color: "white" }}>Lozinka</label>
           <input type="password" name="password" value={formData.password} onChange={handleChange} required />
         </div>
 
         <div className="form-group">
-          <label>Lična karta (jpg, png, pdf)</label>
+          <label style={{ color: "white" }}>Lična karta (jpg, png, pdf)</label>
           <input type="file" name="personal_id" onChange={handleChange} required />
         </div>
 
         <div className="form-group">
-          <label>Vozačka dozvola (jpg, png, pdf)</label>
+          <label style={{ color: "white" }}>Vozačka dozvola (jpg, png, pdf)</label>
           <input type="file" name="drivers_licence" onChange={handleChange} required />
         </div>
 
